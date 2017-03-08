@@ -3,6 +3,7 @@
 
 
 import os
+import sys
 from string import Template
 
 
@@ -36,15 +37,18 @@ def read_page_file(path):
     return page_values
 
 
-def generate_page(directory, filename):
+def generate_page(directory, filename, base_dir):
     path = '%s/%s' % (directory, filename)
     page_values = read_page_file(path)
+    page_values['base_dir'] = base_dir
 
     with open('templates/main.html') as f:
         template_lines = f.readlines()
     template_str = '\n'.join(template_lines)
+    
     template = Template(template_str)
-
+    page_str = template.substitute(page_values)
+    template = Template(page_str)
     page_str = template.substitute(page_values)
 
     out_dir = '/'.join(['output'] + directory.split('/')[1:])
@@ -57,12 +61,16 @@ def generate_page(directory, filename):
         text_file.write(page_str)
 
 
-def generate():
+def generate(base_dir):
+    print('base_dir is "%s"' % base_dir)
     for page in page_paths():
         print('processing page: %s/%s' % (page[0], page[1]))
-        generate_page(page[0], page[1])
+        generate_page(page[0], page[1], base_dir)
 
 
 if __name__ == '__main__':
-    generate()
+    base_dir = ''
+    if len(sys.argv) > 1:
+        base_dir = sys.argv[1]
+    generate(base_dir)
     print('done.')
