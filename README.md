@@ -1,0 +1,1 @@
+This includes a very simple static site generator. Feel free to do whatever you want with it.
