@@ -37,28 +37,39 @@ def read_page_file(path):
     return page_values
 
 
-def generate_page(directory, filename, base_dir):
+def generate_page(directory, filename, base_dir, propagate_parameters=None):
     path = '%s/%s' % (directory, filename)
-    page_values = read_page_file(path)
-    page_values['base_dir'] = base_dir
 
-    with open('templates/main.html') as f:
-        template_lines = f.readlines()
-    template_str = '\n'.join(template_lines)
+    if propagate_parameters:
+        parameters = propagate_parameters.copy()
+        parameters.pop('template', None)
+    else:
+        parameters = {}
+    parameters.update(read_page_file(path))
     
-    template = Template(template_str)
-    page_str = template.substitute(page_values)
-    template = Template(page_str)
-    page_str = template.substitute(page_values)
+    parameters['base_dir'] = base_dir
+    
+    template = Template(parameters['html'])
+    if propagate_parameters and 'html' in propagate_parameters:
+        parameters['html'] = propagate_parameters['html']
+    page_str = template.substitute(parameters)
+    parameters['html'] = page_str
 
-    out_dir = '/'.join(['output'] + directory.split('/')[1:])
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    if 'template' in parameters:
+        template_filename = '%s.html' % parameters['template']
+        page_str = generate_page('templates', template_filename, base_dir, parameters)
 
-    html_filename = '%s.html' % filename.split('.')[0]
-    outpath = '%s/%s' % (out_dir, html_filename)
-    with open(outpath, 'w') as text_file:
-        text_file.write(page_str)
+    if not propagate_parameters:
+        out_dir = '/'.join(['output'] + directory.split('/')[1:])
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        html_filename = '%s.html' % filename.split('.')[0]
+        outpath = '%s/%s' % (out_dir, html_filename)
+        with open(outpath, 'w') as text_file:
+            text_file.write(page_str)
+
+    return page_str
 
 
 def generate(base_dir):
