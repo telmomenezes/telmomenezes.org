@@ -1,0 +1,10 @@
+.figure {
+	text-align: center;
+	width: 90%;
+  	margin: 0 auto;
+}
+
+.figure p {
+	font-size: 0.75em;
+	font-style: italic;
+}

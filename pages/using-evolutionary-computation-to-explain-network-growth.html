@@ -1,0 +1,143 @@
+:title
+Using evolutionary computation to explain network growth
+
+:content
+<h2>Using Evolutionary Computation to Explain Network Growth</h2>
+
+<img src="${base_dir}images/graphs.jpg" alt="Several graphs" class="img-fluid" />
+
+<p>The article titled <a title="Symbolic regression of generative network models" href="http://www.nature.com/srep/2014/140905/srep06284/full/srep06284.html">&#8220;Symbolic regression of generative network models&#8221; </a>that I co-authored with <a title="Camille Roth" href="http://camille.roth.free.fr/">Camille Roth</a> has finally been published. I am really happy with the final result and the fact that it&#8217;s open access.</p>
+<p>Explaining network growth is a challenge that appears in a surprising number of disciplines. For example, neuroscientists are interested in understanding how brains develop, and sociologists in how social networks acquire a certain topology.</p>
+<p>Finding plausible explanations is not trivial. Real networks tend to be large and complex. Reverse-engineering the growth process from a snapshot of a network is a problem that easily defeats human intuition.</p>
+<p>So we developed a method to look for such explanations automatically. We employ evolutionary computation, a machine learning technique inspired by natural selection. Network growth processes (a.k.a. network generators) are represented by simple computer programs. In other words, using only the snapshot of a given network, our method automatically discovers simple laws plausibly governing its evolution. For instance, from an empirical political blog network (see below) we find an equation as simple as [latex]\exp(4-2d)[/latex]. This suggests that a generative process giving exponential priority to closer nodes is able to successfully reconstruct many key features of the original network.</p>
+<p>The evolutionary process evaluates the quality of generators by creating synthetic networks according to the growth process they define and then comparing these synthetic networks to the target, real network. The comparison is done using a set of well-known metrics that target both macro and micro-level features of the networks.</p>
+<p>The best way to understand the method is, of course, to <a title="Symbolic regression of generative network models" href="http://www.nature.com/srep/2014/140905/srep06284/full/srep06284.html">read the paper</a>.</p>
+<p>We are also releasing an <a title="synthetic" href="https://github.com/telmomenezes/synthetic">open-source software tool called <em>Synthetic</em> </a>that any researcher can apply to their own networks. If you are interested, don&#8217;t hesitate to contact us. We would love to hear from any attempts (successful or not) at using <em>Synthetic</em> outside of our lab.</p>
+<p>To illustrate what can be achieved, I leave you with seven generators we discovered. They cover very different types of networks, including a simple brain, protein interactions and social networks. The following table describes the variables used in the expressions:</p>
+
+<div class="figure">
+<img src="${base_dir}images/variables.png" alt="Generator variables" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Generator variables</p>
+</div>
+
+<p>The expressions that define the generators use these variables to assign weights to the pairs of unconnected nodes in the network. The higher the weight, the more likely it is that the generator will establish a connection between the nodes.</p>
+<p>A simple example: consider a <em>&#8220;rich get richer&#8221;</em> phenomena. The more incoming connection a node has, the more likely it is to receive more connections. Such a generator could be defined as:</p>
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \mathrm{k}(j)[/latex]</p>
+<p>The following examples are roughly ordered by increasing complexity of the generator.</p>
+
+
+<h3>Political Blogs</h3>
+<p><strong>Citation network of political blogs during the 2004 American presidential elections</strong></p>
+<p>&nbsp;</p>
+
+<div class="figure">
+<img src="${base_dir}images/political.png" alt="Political bloggers" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Political bloggers</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \exp(4 &#8211; 2\mathrm{d})[/latex]</p>
+<p>The political blogs generator takes a single variable: [latex]\mathrm{d}[/latex]. Unlike with [latex]\mathrm{d_D}[/latex], the case where [latex]\mathrm{d} = 1[/latex] can happen, as this distance may be caused by an arc with the opposite direction of the one being proposed. This generator behaviour can be simply described, as shown in the following figure:</p>
+
+<div class="figure">
+<img src="${base_dir}images/political_graph.png" alt="Political bloggers" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Political bloggers</p>
+</div>
+
+<p>Reciprocity is strongly encouraged, given the high weight given to arcs with [latex]\mathrm{d} = 1[/latex]. In fact, this situation necessarily corresponds to a reciprocal arc (linking to a blog that linked to you), because arcs that already exist are not allowed in the sample. Then, weight decreases as undirected distance increases, but never to 0. This distribution of weights according to undirected distances is sufficient to generate the two communities in the network &#8212; links between blogs that have a low undirected distance are more probable, but links to more distant blogs are also possible. This leads to the low density of links between the two communities. Surprisingly, it is possible to propose a plausible generator that leads to the two communities without resorting to <em>a priori</em> diversity (e.g Democrats vs. Republicans), that could be expressed with sequential identifiers or the affinity function. It can be speculated that this matches the way in which political ideology propagates in society.</p>
+
+
+<h3>Word Adjacencies</h3>
+<p><strong>Network of word adjacencies in the novel <em>David Copperfield</em> by Charles Dickens</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/800px-Power_of_Words_by_Antonio_Litterio.jpg" alt="Power of Words" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Photo by Antonio Litterio licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = k(i) &#8211; \mathrm{d}[/latex]</p>
+<p>This network represents the adjacencies of common adjectives and nouns in the novel &#8220;David Copperfield&#8221; by Charles Dickens.</p>
+<p>The generator configures a simple combination of preferential attachment with a preference for connecting to close vertices. An increase in the degree of a node also increases its reach, as the distance term can be higher with making the weight negative, and thus null.</p>
+
+
+<h3>Facebook</h3>
+<p><strong>Neighbourhood of a single Facebook user</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/facebook.jpg" alt="Facebook" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Image by Terry Chay, licensed under Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0).</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \Psi\left(3, i \cdot \mathrm{k}(i), \mathrm{k}(i)\right)[/latex]</p>
+<p>The facebook generator combines preferential attachment with affinity in a simple fashion. The constant value for the number of groups suggests pre-existing social circles.</p>
+<ul>
+<li><strong>affinity: </strong>[latex]i \cdot \mathrm{k}(i)[/latex]</li>
+<li><strong>no affinity: </strong>[latex]\mathrm{k}(i)[/latex]</li>
+</ul>
+<p>The role of the factor [latex]i[/latex] in case of affinity appears to be two-fold: increase the propensity for connections inside pre-existing social circles (for the most cases [latex]i &gt; 1[/latex]) and capture an external preference for certain connections within such groups over others. This matches the intuition that popularity in the real world is expressed in the facebook social graph.</p>
+<p>Connections between groups follow a pure preferential attachment regime, matching the intuition that more popular individuals are more likely to act as bridges between communities.</p>
+
+
+<h3>C. Elegans</h3>
+<p><strong>Brain of a <em>C. Elegans</em> roundworm</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/CrawlingCelegans.gif" alt="Crawling C. elegans" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Crawling C. elegans (CC BY-SA 3.0 Bob Goldstein http://labs.bio.unc.edu/Goldstein/movies.html)</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \log(\mathrm{d_D})^{\mathrm{d_D} &#8211; 7} &#8211; \min(j + 0.52, 0.77)[/latex]</p>
+<p>&nbsp;</p>
+<p>The C.elegans generator uses two variables: [latex]\mathrm{d_D}[/latex] and [latex]j[/latex]. Given the term where [latex]j[/latex] appears, [latex]\min(j + 0.52, 0.77)[/latex], a distinction is only made between [latex]j = 0[/latex] and [latex]j &gt; 0[/latex]. For the first case, the term takes the value 0.52, for the second the value 0.77. The first term uses the [latex]\mathrm{d_D}[/latex] variable, which takes integer values in [latex]\{0, \dotsc 5\}[/latex]. Only values equal to or greater than 2 are relevant, given that [latex]\mathrm{d_D} = 0[/latex] configures a self-link, while [latex]\mathrm{d_D} = 1[/latex] indicates an already existing arc. Both these situations are prohibited in the configuration we use.</p>
+<p>As negative values are considered null weights, we can reduce the generator to 3 possible situations, shown in the following table:</p>
+<div id="attachment_62" style="width: 186px" class="wp-caption aligncenter"><a href="http://www.telmomenezes.org/wp-content/uploads/2014/09/celegans_table.png"><img class="size-full wp-image-62" src="http://www.telmomenezes.org/wp-content/uploads/2014/09/celegans_table.png" alt="Weights table for C.elegans generator" width="176" height="182" /></a><p class="wp-caption-text">Weights table for C.elegans generator.</p></div>
+<p>Here we can see that the rule is indeed very simple: the generator promotes the creation of [latex]A \rightarrow B[/latex] arcs where an [latex]A \rightarrow C \rightarrow B[/latex] arc already exists ([latex]\mathrm{d_D} = 2[/latex]). For the special case of an arc where the target has the sequential identifier 0, [latex]\mathrm{d_D} = 3[/latex] is also allowed, albeit with a much lower probability. For [latex]\mathrm{d_D} = 2[/latex], connection to this special node are also slightly preferred.</p>
+<p>Sequential identifiers are abstractions meant to capture some <em>a priori</em> heterogeneity in the vertex set, so the meaning of the special node 0 can only be speculated on. It might represent a certain spatial constraint for a neuron or a different behaviour of the neuron through some mechanism. Such interpretations are beyond the scope of the work and better left to researchers with the adequate domain knowledge.</p>
+
+
+<h3>Proteins</h3>
+<p><strong>A network of protein interactions in Homo Sapiens</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/proteins.jpg" alt="Proteins" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Copyright by BASF. Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0)</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \begin{cases} \log\left(i\right), &amp; \text{if } \mathrm{k}(j)={\begin{cases} 0, &amp; \text{if } \mathrm{k}(i) &lt; 4\\ \mathrm{k}(i), &amp; \text{otherwise}\end{cases}}\\ -1, &amp; \text{otherwise} \end{cases}[/latex]</p>
+<p>The protein interactions generator only assigns a non-null weight in two cases: if the target is not yet connected and the origin has a low degree ([latex]\mathrm{k}(i) &lt; 4[/latex]), or if the degree of the origin and target are the same. Non-null weights are always [latex]\log(i)[/latex], indicating an <em>a priori</em> logarithmically distributed propensity for interaction.</p>
+<p>This generative process seems to indicate a strong preference for assortativity on degree, establishing edges between proteins that interact with a similar number of other proteins.</p>
+<h3>Software Collaborations</h3>
+<p><strong>Collaboration network of authors from the CPAN Perl module repository</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/software.jpg" alt="Software Collaborations" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Photo by Marko Puusaar ( licensed under the Creative Commons Attribution-Share Alike 3.0 Unported)</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \Psi\left(\frac{k'(i)}{\mathrm{d}}, k'(j), 0.7 k(j)\right) \cdot \min\left(k(j), 9\right)[/latex]</p>
+<p>The software collaborations network represents software authors from the CPAN Perl language repository. An arc means then an author uses a software module from another author.</p>
+<p>Here we can see that the affinity operator is used. The first parameter of the operator represents the number of groups that the vertex set is divided into, so the higher this value, the less likely affinity between to arbitrary vertices becomes. The number of groups is rounded to the closest integer.</p>
+<p>As the number of groups is determined by [latex]\frac{k'(i)}{\mathrm{d}}[/latex], an increase in the out-degree of the origin makes affinity less likely and an increase in undirected distance makes it more likely. The expression can be divided into two branches:</p>
+<ul>
+<li><strong>affinity:</strong> [latex]k'(j) \cdot \min\left(k(j), 9\right)[/latex]</li>
+<li><strong>no affinity:</strong> [latex]0.7 k(j) \cdot \min\left(k(j), 9\right)[/latex]</li>
+</ul>
+<p>Both branches represent a form of preferential attachment. The first one uses a combination of the in- and out-degree of the target, while the second only considers the in-degree.</p>
+<p>A plausible interpretation is that the generator proposes two modes of discovery: by proximity in the network or by problem domain affinity. Affinity is more likely when the origin is still an outsider to the environment (low number of dependencies on other authors&#8217; work) or when the topological distance is high &#8212; maybe an existing author expanding to a new problem domain. When module discovery is by proximity, the only thing that is taken into account is the number of authors that already depend on the work of the target &#8212; its popularity for a certain problem domain. When it is by affinity, the number of authors that it depends on also factors in. This could represent a measure of integrative power &#8212; how much the work of a certain author encapsulates existing solutions in a higher abstraction, providing a more useful entry point for a newcomer to its domain.</p>
+
+
+<h3>Power Grid</h3>
+<p><strong>Power grid of the Western States of the USA</strong></p>
+
+<div class="figure">
+<img src="${base_dir}images/power.jpg" alt="Power Grid" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Photo by Guy Erwood and licensed for reuse under this Creative Commons Licence.</p>
+</div>
+
+<p style="text-align: center;">[latex]\mathrm{w}(i, j) = \Psi\left(\mathrm{d}^{\mathrm{d}\cdot{\begin{cases} i &#8211; 1, &amp; \text{if } \mathrm{k}(j) = 0\\ \mathrm{k}(i), &amp; \text{otherwise} \end{cases}}}, 1, 0\right)[/latex]</p>
+<p>The power grid generator also uses the affinity generator, but in a more binary fashion: the weight is always 1 if there is affinity and null if there is not. All the complexity of the generator is captured by the decision on the number of affinity groups. The following things can be noted about the expression that determines the number of groups:</p>
+<ul>
+<li>Overall, the probability of affinity decreases exponentially with distance.</li>
+<li>The node with the sequential identifier 1 overrides the previous rule if the target has no connections, by making the exponent null. This configures a central hub for newcomers to connect to.</li>
+<li>An origin with no connections overrides the previous rule if the target is already connected, also by making the exponent null.</li>
+</ul>
+<p>This configures a branching growth behaviour, where new vertices either connect to a central hub or some already connected vertex, but connections between already connected or distant vertices are discouraged. The tree-like structure that originates from this matches our intuitions about the growth of a power grid. The affinity operator, by implicitly using sequence identifiers, might abstract at a high level the underlying spatial constraints.</p>
