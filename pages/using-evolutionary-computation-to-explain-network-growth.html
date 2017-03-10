@@ -90,7 +90,12 @@ article
 <p>&nbsp;</p>
 <p>The C.elegans generator uses two variables: [latex]\mathrm{d_D}[/latex] and [latex]j[/latex]. Given the term where [latex]j[/latex] appears, [latex]\min(j + 0.52, 0.77)[/latex], a distinction is only made between [latex]j = 0[/latex] and [latex]j &gt; 0[/latex]. For the first case, the term takes the value 0.52, for the second the value 0.77. The first term uses the [latex]\mathrm{d_D}[/latex] variable, which takes integer values in [latex]\{0, \dotsc 5\}[/latex]. Only values equal to or greater than 2 are relevant, given that [latex]\mathrm{d_D} = 0[/latex] configures a self-link, while [latex]\mathrm{d_D} = 1[/latex] indicates an already existing arc. Both these situations are prohibited in the configuration we use.</p>
 <p>As negative values are considered null weights, we can reduce the generator to 3 possible situations, shown in the following table:</p>
-<div id="attachment_62" style="width: 186px" class="wp-caption aligncenter"><a href="http://www.telmomenezes.org/wp-content/uploads/2014/09/celegans_table.png"><img class="size-full wp-image-62" src="http://www.telmomenezes.org/wp-content/uploads/2014/09/celegans_table.png" alt="Weights table for C.elegans generator" width="176" height="182" /></a><p class="wp-caption-text">Weights table for C.elegans generator.</p></div>
+
+<div class="figure">
+<img src="${base_dir}images/celegans_table.png" alt="Weights table for C.elegans generator" class="img-fluid img-thumbnail" style="max-width:400px" />
+<p>Weights table for C.elegans generator.</p>
+</div>
+
 <p>Here we can see that the rule is indeed very simple: the generator promotes the creation of [latex]A \rightarrow B[/latex] arcs where an [latex]A \rightarrow C \rightarrow B[/latex] arc already exists ([latex]\mathrm{d_D} = 2[/latex]). For the special case of an arc where the target has the sequential identifier 0, [latex]\mathrm{d_D} = 3[/latex] is also allowed, albeit with a much lower probability. For [latex]\mathrm{d_D} = 2[/latex], connection to this special node are also slightly preferred.</p>
 <p>Sequential identifiers are abstractions meant to capture some <em>a priori</em> heterogeneity in the vertex set, so the meaning of the special node 0 can only be speculated on. It might represent a certain spatial constraint for a neuron or a different behaviour of the neuron through some mechanism. Such interpretations are beyond the scope of the work and better left to researchers with the adequate domain knowledge.</p>
 
